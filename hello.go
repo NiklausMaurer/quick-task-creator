@@ -20,10 +20,8 @@ func main() {
 	m.SetTemplateID("d-17b13c4e50ac46d3bdcd21ca352d53c6")
 
 	p := mail.NewPersonalization()
-	tos := []*mail.Email{
-	mail.NewEmail("Trello Board", "niklausmaurer+xrh1wnkmzvtdnm56k3au@boards.trello.com"),
-	}
-	p.AddTos(tos...)
+	to := mail.NewEmail("Trello Board", "niklausmaurer+xrh1wnkmzvtdnm56k3au@boards.trello.com")
+	p.AddTos(to)
 
 	p.SetDynamicTemplateData("task", "roll over and survive")
 	p.SetDynamicTemplateData("description", "clean the floor first")
