@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
+	_ "strings"
 )
 
 func main() {
@@ -23,7 +26,7 @@ func main() {
 
 	token := <-tokenChannel
 
-	fmt.Println(token)
+	log.Printf("Aaaand the token iiis...: %s, I'm done here.", token)
 }
 
 func startWebserver(token chan<- string) {
@@ -33,16 +36,19 @@ func startWebserver(token chan<- string) {
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
 
-		log.Println(req.URL)
+		if req.Method == http.MethodPost {
+			data, err := io.ReadAll(req.Body)
+			if err != nil {
+				return
+			}
 
-		query := req.URL.Query()
-		if query.Has("token") {
-			token <- query.Get("token")
-			_, _ = fmt.Fprintf(w, "Success!")
-			return
+			tokenWithPrefix := string(data)
+
+			if strings.HasPrefix(tokenWithPrefix, "token=") {
+				token <- strings.TrimPrefix(tokenWithPrefix, "token=")
+			}
 		}
 
-		_, _ = fmt.Fprintf(w, "Fail!")
 	})
 
 	_ = http.ListenAndServe(":8080", nil)
