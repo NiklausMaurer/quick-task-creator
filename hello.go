@@ -36,7 +36,7 @@ func startBrowser() {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	openbrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
+	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 }
 
 func startWebserver(token chan<- string) {
@@ -68,7 +68,7 @@ func startWebserver(token chan<- string) {
 
 }
 
-func openbrowser(url string) {
+func openBrowser(url string) {
 	var err error
 
 	switch runtime.GOOS {
