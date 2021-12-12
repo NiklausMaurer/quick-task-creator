@@ -14,14 +14,20 @@ import (
 
 func main() {
 
-	tokenChannel := make(chan string)
-	go startWebserver(tokenChannel)
+	authorize()
+}
 
-	startBrowser()
+func authorize() string {
+	tokenChannel := make(chan string)
+
+	go startWebserver(tokenChannel)
+	go startBrowser()
 
 	token := <-tokenChannel
 
 	log.Printf("Aaaand the token iiis...: %s, I'm done here.", token)
+
+	return token
 }
 
 func startBrowser() {
