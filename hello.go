@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	openbrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/authorize&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
+	openbrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 
 	token := <-tokenChannel
 
@@ -27,6 +27,9 @@ func main() {
 }
 
 func startWebserver(token chan<- string) {
+
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
 
