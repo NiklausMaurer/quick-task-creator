@@ -39,14 +39,17 @@ func startWebserver(token chan<- string) {
 		if req.Method == http.MethodPost {
 			data, err := io.ReadAll(req.Body)
 			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 
 			tokenWithPrefix := string(data)
 
-			if strings.HasPrefix(tokenWithPrefix, "token=") {
-				token <- strings.TrimPrefix(tokenWithPrefix, "token=")
+			if !strings.HasPrefix(tokenWithPrefix, "token=") {
+				w.WriteHeader(http.StatusBadRequest)
 			}
+
+			token <- strings.TrimPrefix(tokenWithPrefix, "token=")
 		}
 
 	})
