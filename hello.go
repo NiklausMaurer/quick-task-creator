@@ -2,14 +2,30 @@ package main
 
 import (
 	"fmt"
+	"github.com/sendgrid/sendgrid-go"
+	"log"
+	"net/http"
 	"os"
 
-	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 func main() {
-	
+
+	http.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
+		query := req.URL.Query()
+		if !query.Has("token") {
+			log.Fatalf("no token given: %s", req.URL)
+		}
+
+		_, _ = fmt.Fprintf(w, "Hello %s", query.Get("token"))
+	})
+
+	_ = http.ListenAndServe(":8080", nil)
+}
+
+func sendMail() {
+
 	m := mail.NewV3Mail()
 
 	from := "dev@bychoice.ch"
@@ -40,5 +56,5 @@ func main() {
 		fmt.Println(response.StatusCode)
 		fmt.Println(response.Body)
 		fmt.Println(response.Headers)
-	}  
+	}
 }
