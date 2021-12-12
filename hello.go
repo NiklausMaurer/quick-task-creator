@@ -11,20 +11,35 @@ import (
 
 func main() {
 
+	tokenChannel := make(chan string)
+	go startWebserver(tokenChannel)
+
 	trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
 	if !present {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	openbrowser(fmt.Sprintf("http://localhost:8080/authorize/?token=%s", trelloApiKey))
+	openbrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/authorize&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
+
+	token := <-tokenChannel
+
+	fmt.Println(token)
+}
+
+func startWebserver(token chan<- string) {
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
+
+		log.Println(req.URL)
+
 		query := req.URL.Query()
-		if !query.Has("token") {
-			log.Fatalf("no token given: %s", req.URL)
+		if query.Has("token") {
+			token <- query.Get("token")
+			_, _ = fmt.Fprintf(w, "Success!")
+			return
 		}
 
-		_, _ = fmt.Fprintf(w, "Hello %s", query.Get("token"))
+		_, _ = fmt.Fprintf(w, "Fail!")
 	})
 
 	_ = http.ListenAndServe(":8080", nil)
