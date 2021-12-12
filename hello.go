@@ -17,16 +17,20 @@ func main() {
 	tokenChannel := make(chan string)
 	go startWebserver(tokenChannel)
 
+	startBrowser()
+
+	token := <-tokenChannel
+
+	log.Printf("Aaaand the token iiis...: %s, I'm done here.", token)
+}
+
+func startBrowser() {
 	trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
 	if !present {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
 	openbrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
-
-	token := <-tokenChannel
-
-	log.Printf("Aaaand the token iiis...: %s, I'm done here.", token)
 }
 
 func startWebserver(token chan<- string) {
