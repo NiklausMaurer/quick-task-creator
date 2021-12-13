@@ -14,10 +14,10 @@ import (
 )
 
 func main() {
-	authorize()
+	performAuthorization()
 }
 
-func authorize() string {
+func performAuthorization() string {
 	tokenChannel := make(chan string)
 
 	listener := initializeNetworkListener()
