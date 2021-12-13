@@ -17,20 +17,38 @@ func main() {
 	performAuthorization()
 }
 
+type authorizationResult struct {
+	token string
+	err   error
+}
+
+func successfulAuthorizationResult(token string) authorizationResult {
+	return authorizationResult{token: token}
+}
+
 func performAuthorization() string {
 
 	listener := initializeNetworkListener()
-	tokenChannel := make(chan string)
-	server := initializeWebServer(listener, tokenChannel)
+	authorizationResultChannel := make(chan authorizationResult)
+	server := initializeWebServer(listener, authorizationResultChannel)
 
 	go startWebServer(listener, server)
 	go startBrowser()
 
-	token := <-tokenChannel
+	result := <-authorizationResultChannel
 
-	log.Printf("Aaaand the token iiis...: %s, I'm done here.", token)
+	stopWebServer(server)
 
-	return token
+	log.Printf("Aaaand the token iiis...: %s, I'm done here.", result.token)
+
+	return result.token
+}
+
+func stopWebServer(server *http.Server) {
+	err := server.Close()
+	if err != nil {
+		log.Print("Stopping the web server failed: ", err)
+	}
 }
 
 func initializeNetworkListener() net.Listener {
@@ -64,7 +82,7 @@ func startBrowser() {
 	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 }
 
-func initializeWebServer(listener net.Listener, token chan<- string) *http.Server {
+func initializeWebServer(listener net.Listener, token chan authorizationResult) *http.Server {
 
 	serverMux := http.NewServeMux()
 
@@ -86,7 +104,7 @@ func initializeWebServer(listener net.Listener, token chan<- string) *http.Serve
 				w.WriteHeader(http.StatusBadRequest)
 			}
 
-			token <- strings.TrimPrefix(tokenWithPrefix, "token=")
+			token <- successfulAuthorizationResult(strings.TrimPrefix(tokenWithPrefix, "token="))
 		}
 	})
 
