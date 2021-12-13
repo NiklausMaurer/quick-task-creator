@@ -32,7 +32,7 @@ func performAuthorization() string {
 
 	listener := initializeNetworkListener()
 	authorizationResultChannel := make(chan authorizationResult)
-	server := initializeWebServer(listener, authorizationResultChannel)
+	server := initializeWebServer(authorizationResultChannel)
 
 	go startWebServer(listener, server)
 	go startBrowser()
@@ -93,7 +93,7 @@ func startBrowser() {
 	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 }
 
-func initializeWebServer(listener net.Listener, token chan authorizationResult) *http.Server {
+func initializeWebServer(token chan authorizationResult) *http.Server {
 
 	serverMux := http.NewServeMux()
 
@@ -119,10 +119,7 @@ func initializeWebServer(listener net.Listener, token chan authorizationResult) 
 		}
 	})
 
-	server := http.Server{
-		Addr:    listener.Addr().String(),
-		Handler: serverMux,
-	}
+	server := http.Server{Handler: serverMux}
 
 	return &server
 }
