@@ -18,12 +18,12 @@ func main() {
 }
 
 func performAuthorization() string {
-	tokenChannel := make(chan string)
 
 	listener := initializeNetworkListener()
+	tokenChannel := make(chan string)
 	server := initializeWebServer(tokenChannel)
-	go startWebServer(listener, server)
 
+	go startWebServer(listener, server)
 	go startBrowser()
 
 	token := <-tokenChannel
