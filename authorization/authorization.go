@@ -65,12 +65,10 @@ func initializeNetworkListener() net.Listener {
 }
 
 func startWebServer(listener net.Listener, server *http.Server) {
-	func() {
-		err := server.Serve(listener)
-		if err != nil {
-			log.Fatal("Web server crashed: ", err)
-		}
-	}()
+	err := server.Serve(listener)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal("Web server crashed: ", err)
+	}
 }
 
 func startBrowser(port int) {
