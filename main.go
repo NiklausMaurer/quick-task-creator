@@ -23,8 +23,9 @@ func main() {
 	// list: 5e42613e71e90d4b76228153
 
 	trelloUserToken := GetUserToken()
+	trelloListId := "5e42613e71e90d4b76228153"
 
-	url := fmt.Sprintf("https://api.trello.com/1/cards?idList=5e42613e71e90d4b76228153&key=%s&token=%s", trelloApiKey, trelloUserToken)
+	url := fmt.Sprintf("https://api.trello.com/1/cards?idList=%s&key=%s&token=%s", trelloListId, trelloApiKey, trelloUserToken)
 	fmt.Println("URL:>", url)
 
 	var jsonStr = []byte(`{"name":"To this and that","desc":"bla bla description bla","pos":"top"}`)
