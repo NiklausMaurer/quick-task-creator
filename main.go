@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"runtime"
 	"strings"
 	_ "strings"
+	"time"
 )
 
 func main() {
@@ -34,14 +36,23 @@ func performAuthorization() string {
 
 	go startWebServer(listener, server)
 	go startBrowser()
+	go sendTimeOutAfter(time.Duration(120)*time.Second, authorizationResultChannel)
 
 	result := <-authorizationResultChannel
-
 	stopWebServer(server)
 
-	log.Printf("Aaaand the token iiis...: %s, I'm done here.", result.token)
+	if result.err == nil {
+		log.Printf("Aaaand the token iiis...: %s, I'm done here.", result.token)
+	} else {
+		log.Fatal("An error occurred during the authorization process: ", result.err)
+	}
 
 	return result.token
+}
+
+func sendTimeOutAfter(d time.Duration, resultChannel chan authorizationResult) {
+	time.Sleep(d)
+	resultChannel <- authorizationResult{err: errors.New("timeout expired")}
 }
 
 func stopWebServer(server *http.Server) {
