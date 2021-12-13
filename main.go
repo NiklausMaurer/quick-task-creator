@@ -22,6 +22,11 @@ func main() {
 	trelloUserToken := GetUserToken()
 	trelloListId := "5e42613e71e90d4b76228153"
 
+	PostNewCard(trelloListId, trelloApiKey, trelloUserToken)
+
+}
+
+func PostNewCard(trelloListId string, trelloApiKey string, trelloUserToken string) {
 	url := fmt.Sprintf("https://api.trello.com/1/cards?idList=%s&key=%s&token=%s", trelloListId, trelloApiKey, trelloUserToken)
 	fmt.Println("URL:>", url)
 
@@ -41,7 +46,6 @@ func main() {
 	}(resp.Body)
 
 	fmt.Println("response Status:", resp.Status)
-
 }
 
 func GetUserToken() string {
