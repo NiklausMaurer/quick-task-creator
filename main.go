@@ -20,10 +20,9 @@ func main() {
 func authorize() string {
 	tokenChannel := make(chan string)
 
-	listener := initializeNetworkListener(tokenChannel)
-
+	listener := initializeNetworkListener()
+	initializeWebServer(tokenChannel)
 	go startWebServer(listener)
-
 	go startBrowser()
 
 	token := <-tokenChannel
@@ -33,13 +32,16 @@ func authorize() string {
 	return token
 }
 
-func initializeNetworkListener(tokenChannel chan string) net.Listener {
-	listener, err := initializeWebServer(tokenChannel)
+func initializeNetworkListener() net.Listener {
+
+	listener, err := net.Listen("tcp", ":8080")
+
 	if err == nil {
 		log.Print("Web server initialized, listening to ", listener.Addr())
 	} else {
 		log.Fatal("Web server initialisation went wrong: ", err)
 	}
+
 	return listener
 }
 
@@ -61,7 +63,7 @@ func startBrowser() {
 	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 }
 
-func initializeWebServer(token chan<- string) (net.Listener, error) {
+func initializeWebServer(token chan<- string) {
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
@@ -83,15 +85,7 @@ func initializeWebServer(token chan<- string) (net.Listener, error) {
 
 			token <- strings.TrimPrefix(tokenWithPrefix, "token=")
 		}
-
 	})
-
-	l, err := net.Listen("tcp", ":8080")
-	if err != nil {
-		return nil, err
-	}
-
-	return l, nil
 }
 
 func openBrowser(url string) {
