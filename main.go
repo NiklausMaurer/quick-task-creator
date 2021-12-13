@@ -21,7 +21,7 @@ func performAuthorization() string {
 
 	listener := initializeNetworkListener()
 	tokenChannel := make(chan string)
-	server := initializeWebServer(tokenChannel)
+	server := initializeWebServer(listener, tokenChannel)
 
 	go startWebServer(listener, server)
 	go startBrowser()
@@ -46,9 +46,9 @@ func initializeNetworkListener() net.Listener {
 	return listener
 }
 
-func startWebServer(listener net.Listener, server *http.ServeMux) {
+func startWebServer(listener net.Listener, server *http.Server) {
 	func() {
-		err := http.Serve(listener, server)
+		err := server.Serve(listener)
 		if err != nil {
 			log.Fatal("Web server crashed: ", err)
 		}
@@ -64,14 +64,14 @@ func startBrowser() {
 	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:8080/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", trelloApiKey))
 }
 
-func initializeWebServer(token chan<- string) *http.ServeMux {
+func initializeWebServer(listener net.Listener, token chan<- string) *http.Server {
 
-	server := http.NewServeMux()
+	serverMux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("./static"))
-	server.Handle("/static/", http.StripPrefix("/static/", fileServer))
+	serverMux.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
-	server.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
+	serverMux.HandleFunc("/authorize", func(w http.ResponseWriter, req *http.Request) {
 
 		if req.Method == http.MethodPost {
 			data, err := io.ReadAll(req.Body)
@@ -90,7 +90,12 @@ func initializeWebServer(token chan<- string) *http.ServeMux {
 		}
 	})
 
-	return server
+	server := http.Server{
+		Addr:    listener.Addr().String(),
+		Handler: serverMux,
+	}
+
+	return &server
 }
 
 func openBrowser(url string) {
