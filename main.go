@@ -16,14 +16,18 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "t",
-				Value: "",
-				Usage: "Trello task name",
+				Required: true,
+				Name:     "t",
+				Value:    "",
+				Usage:    "Trello task name",
 			},
 		},
 		Action: func(c *cli.Context) error {
 
 			taskName := c.String("t")
+			if len(taskName) == 0 {
+				return nil
+			}
 
 			trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
 			if !present {
