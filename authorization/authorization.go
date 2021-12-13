@@ -23,7 +23,7 @@ func successfulAuthorizationResult(token string) authorizationResult {
 	return authorizationResult{token: token}
 }
 
-func PerformAuthorization() string {
+func PerformAuthorization() (string, error) {
 
 	listener := initializeNetworkListener()
 	authorizationResultChannel := make(chan authorizationResult)
@@ -36,13 +36,7 @@ func PerformAuthorization() string {
 	result := <-authorizationResultChannel
 	stopWebServer(server)
 
-	if result.err == nil {
-		log.Printf("Aaaand the token iiis...: %s, I'm done here.", result.token)
-	} else {
-		log.Fatal("An error occurred during the authorization process: ", result.err)
-	}
-
-	return result.token
+	return result.token, result.err
 }
 
 func sendTimeOutAfter(d time.Duration, resultChannel chan authorizationResult) {
