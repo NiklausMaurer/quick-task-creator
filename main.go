@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/NiklausMaurer/quick-task-creator/trello/authorization"
 	"github.com/NiklausMaurer/quick-task-creator/trello/client"
+	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,15 +13,36 @@ import (
 
 func main() {
 
-	trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
-	if !present {
-		log.Fatalf("TRELLO_API_KEY not set")
+	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "t",
+				Value: "",
+				Usage: "Trello task name",
+			},
+		},
+		Action: func(c *cli.Context) error {
+
+			taskName := c.String("t")
+
+			trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
+			if !present {
+				log.Fatalf("TRELLO_API_KEY not set")
+			}
+
+			trelloUserToken := GetUserToken()
+			trelloListId := "5e42613e71e90d4b76228153"
+
+			client.PostNewCard(taskName, trelloListId, trelloApiKey, trelloUserToken)
+
+			return nil
+		},
 	}
 
-	trelloUserToken := GetUserToken()
-	trelloListId := "5e42613e71e90d4b76228153"
-
-	client.PostNewCard(trelloListId, trelloApiKey, trelloUserToken)
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
 
