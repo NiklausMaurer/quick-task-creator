@@ -19,9 +19,6 @@ func main() {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	// board: 5de620427aa9f3570c298caf
-	// list: 5e42613e71e90d4b76228153
-
 	trelloUserToken := GetUserToken()
 	trelloListId := "5e42613e71e90d4b76228153"
 
