@@ -84,27 +84,9 @@ func GetUserToken() (string, error) {
 			os.Exit(1)
 		}
 
-		err = os.MkdirAll(filepath.Dir(tokenFilePath), os.ModePerm)
+		err = writeTokenToFile(token, tokenFilePath)
 		if err != nil {
-			_, _ = fmt.Fprint(os.Stderr, "Unable to create config directory. Reason: ", err)
-			os.Exit(1)
-		}
-
-		tokenFile, err := os.Create(tokenFilePath)
-		if err != nil {
-			_, _ = fmt.Fprint(os.Stderr, "Unable create access token file. Reason: ", err)
-			os.Exit(1)
-		}
-
-		_, err = tokenFile.WriteString(token)
-		if err != nil {
-			_, _ = fmt.Fprint(os.Stderr, "Unable to write access token to file. Reason: ", err)
-			os.Exit(1)
-		}
-
-		err = os.Chmod(tokenFilePath, 0600)
-		if err != nil {
-			_, _ = fmt.Fprint(os.Stderr, "Unable to set access token file permissions. Reason: ", err)
+			_, _ = fmt.Fprint(os.Stderr, "There was an issue while saving the user token: ", err)
 			os.Exit(1)
 		}
 	}
@@ -117,4 +99,28 @@ func GetUserToken() (string, error) {
 
 	token := string(tokenContent)
 	return token, nil
+}
+
+func writeTokenToFile(token string, tokenFilePath string) error {
+	err := os.MkdirAll(filepath.Dir(tokenFilePath), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	tokenFile, err := os.Create(tokenFilePath)
+	if err != nil {
+		return err
+	}
+
+	_, err = tokenFile.WriteString(token)
+	if err != nil {
+		return err
+	}
+
+	err = os.Chmod(tokenFilePath, 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
