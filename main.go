@@ -37,9 +37,7 @@ func main() {
 			trelloUserToken := GetUserToken()
 			trelloListId := "5e42613e71e90d4b76228153"
 
-			client.PostNewCard(taskName, trelloListId, trelloApiKey, trelloUserToken)
-
-			return nil
+			return client.PostNewCard(taskName, trelloListId, trelloApiKey, trelloUserToken)
 		},
 	}
 
