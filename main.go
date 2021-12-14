@@ -34,7 +34,11 @@ func main() {
 				log.Fatalf("TRELLO_API_KEY not set")
 			}
 
-			trelloUserToken := GetUserToken()
+			trelloUserToken, err := GetUserToken()
+			if err != nil {
+				return err
+			}
+
 			trelloListId := "5e42613e71e90d4b76228153"
 
 			return client.PostNewCard(taskName, trelloListId, trelloApiKey, trelloUserToken)
@@ -48,13 +52,32 @@ func main() {
 
 }
 
-func GetUserToken() string {
+func fileExists(filePath string) (bool, error) {
+
+	_, err := os.Stat(filePath)
+
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func GetUserToken() (string, error) {
 
 	homeDirPath := os.Getenv("HOME")
 	tokenFilePath := fmt.Sprintf("%s/.quick-task-creator/token", homeDirPath)
-	_, err := os.Stat(tokenFilePath)
 
-	if errors.Is(err, os.ErrNotExist) {
+	fileExists, err := fileExists(tokenFilePath)
+	if err != nil {
+		return "", err
+	}
+
+	if !fileExists {
 		token, err := authorization.PerformAuthorization()
 		if err != nil {
 			_, _ = fmt.Fprint(os.Stderr, "Authorization process failed. Reason: ", err)
@@ -93,5 +116,5 @@ func GetUserToken() string {
 	}
 
 	token := string(tokenContent)
-	return token
+	return token, nil
 }
