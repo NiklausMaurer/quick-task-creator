@@ -25,7 +25,11 @@ func successfulAuthorizationResult(token string) authorizationResult {
 
 func PerformAuthorization() (string, error) {
 
-	listener := initializeNetworkListener()
+	listener, err := initializeNetworkListener()
+	if err != nil {
+		return "", err
+	}
+
 	authorizationResultChannel := make(chan authorizationResult)
 	server := initializeWebServer(authorizationResultChannel)
 
@@ -51,17 +55,15 @@ func stopWebServer(server *http.Server) {
 	}
 }
 
-func initializeNetworkListener() net.Listener {
+func initializeNetworkListener() (net.Listener, error) {
 
 	listener, err := net.Listen("tcp", ":42671")
 
-	if err == nil {
-		log.Print("Web server initialized, listening to ", listener.Addr())
-	} else {
-		log.Fatal("Web server initialisation went wrong: ", err)
+	if err != nil {
+		return nil, err
 	}
 
-	return listener
+	return listener, nil
 }
 
 func startWebServer(listener net.Listener, server *http.Server) {
