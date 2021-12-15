@@ -30,14 +30,15 @@ func PerformAuthorization() (string, error) {
 		return "", err
 	}
 
-	authorizationResultChannel := make(chan authorizationResult)
-	server := initializeWebServer(authorizationResultChannel)
+	ch := make(chan authorizationResult)
+
+	server := initializeWebServer(ch)
 
 	go startWebServer(listener, server)
 	go startBrowser(listener.Addr().(*net.TCPAddr).Port)
-	go sendTimeOutAfter(time.Duration(120)*time.Second, authorizationResultChannel)
+	go sendTimeOutAfter(time.Duration(120)*time.Second, ch)
 
-	result := <-authorizationResultChannel
+	result := <-ch
 	stopWebServer(server)
 
 	return result.token, result.err
