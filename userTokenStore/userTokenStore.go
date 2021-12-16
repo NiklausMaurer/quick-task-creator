@@ -13,8 +13,8 @@ type GetUserTokenResult struct {
 	Error      error
 }
 
-func GetUserToken() GetUserTokenResult {
-	tokenFilePath := getTokenFilePath()
+func GetSecret() GetUserTokenResult {
+	tokenFilePath := getSecretFilePath("token")
 
 	fileExists, err := fileExists(tokenFilePath)
 	if err != nil {
@@ -31,12 +31,13 @@ func GetUserToken() GetUserTokenResult {
 	}
 
 	token := string(tokenContent)
+
 	return GetUserTokenResult{true, token, nil}
 }
 
-func getTokenFilePath() string {
+func getSecretFilePath(secret string) string {
 	homeDirPath := os.Getenv("HOME")
-	tokenFilePath := fmt.Sprintf("%s/.quick-task-creator/token", homeDirPath)
+	tokenFilePath := fmt.Sprintf("%s/.quick-task-creator/%s", homeDirPath, secret)
 	return tokenFilePath
 }
 
@@ -57,7 +58,7 @@ func fileExists(filePath string) (bool, error) {
 
 func StoreUserToken(token string) error {
 
-	tokenFilePath := getTokenFilePath()
+	tokenFilePath := getSecretFilePath("token")
 
 	err := os.MkdirAll(filepath.Dir(tokenFilePath), os.ModePerm)
 	if err != nil {

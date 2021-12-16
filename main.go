@@ -60,7 +60,7 @@ func addCardToDefaultList(taskName string) error {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	getUserTokenResult := userTokenStore.GetUserToken()
+	getUserTokenResult := userTokenStore.GetSecret()
 	if getUserTokenResult.Error != nil {
 		return getUserTokenResult.Error
 	}
