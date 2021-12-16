@@ -35,7 +35,7 @@ func PerformAuthorization() (string, error) {
 	server := initializeWebServer(ch)
 
 	go startWebServer(listener, server, ch)
-	go startBrowser(listener.Addr().(*net.TCPAddr).Port)
+	go startBrowser(listener.Addr().(*net.TCPAddr).Port, ch)
 	go sendTimeOutAfter(time.Duration(120)*time.Second, ch)
 
 	result := <-ch
@@ -74,13 +74,16 @@ func startWebServer(listener net.Listener, server *http.Server, ch chan<- author
 	}
 }
 
-func startBrowser(port int) {
+func startBrowser(port int, ch chan<- authorizationResult) {
 	trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
 	if !present {
-		log.Fatalf("TRELLO_API_KEY not set")
+		ch <- authorizationResult{"", errors.New("The environment variable TRELLO_API_KEY is not set")}
 	}
 
-	openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:%d/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", port, trelloApiKey))
+	err := openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:%d/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", port, trelloApiKey))
+	if err != nil {
+		ch <- authorizationResult{"", err}
+	}
 }
 
 func initializeWebServer(token chan authorizationResult) *http.Server {
@@ -115,21 +118,15 @@ func initializeWebServer(token chan authorizationResult) *http.Server {
 	return &server
 }
 
-func openBrowser(url string) {
-	var err error
-
+func openBrowser(url string) error {
 	switch runtime.GOOS {
 	case "linux":
-		err = exec.Command("xdg-open", url).Start()
+		return exec.Command("xdg-open", url).Start()
 	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 	case "darwin":
-		err = exec.Command("open", url).Start()
+		return exec.Command("open", url).Start()
 	default:
-		err = fmt.Errorf("unsupported platform")
+		return fmt.Errorf("unsupported platform")
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
-
 }
