@@ -10,28 +10,28 @@ import (
 type GetUserTokenResult struct {
 	TokenFound bool
 	Token      string
+	Error      error
 }
 
-func GetUserToken() (GetUserTokenResult, error) {
+func GetUserToken() GetUserTokenResult {
 	tokenFilePath := getTokenFilePath()
 
 	fileExists, err := fileExists(tokenFilePath)
 	if err != nil {
-		return GetUserTokenResult{false, ""}, err
+		return GetUserTokenResult{false, "", err}
 	}
 
 	if !fileExists {
-		return GetUserTokenResult{false, ""}, nil
+		return GetUserTokenResult{false, "", nil}
 	}
 
 	tokenContent, err := os.ReadFile(tokenFilePath)
 	if err != nil {
-		_, _ = fmt.Fprint(os.Stderr, "Unable to read access token from file. Reason: ", err)
-		os.Exit(1)
+		return GetUserTokenResult{true, "", err}
 	}
 
 	token := string(tokenContent)
-	return GetUserTokenResult{true, token}, nil
+	return GetUserTokenResult{true, token, nil}
 }
 
 func getTokenFilePath() string {
