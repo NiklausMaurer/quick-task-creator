@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -50,10 +49,7 @@ func sendTimeOutAfter(d time.Duration, resultChannel chan authorizationResult) {
 }
 
 func stopWebServer(server *http.Server) {
-	err := server.Close()
-	if err != nil {
-		log.Print("Stopping the web server failed: ", err)
-	}
+	_ = server.Close()
 }
 
 func initializeNetworkListener() (net.Listener, error) {
