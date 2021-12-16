@@ -38,7 +38,7 @@ func PerformAuthorization() (string, error) {
 	go sendTimeOutAfter(time.Duration(120)*time.Second, ch)
 
 	result := <-ch
-	stopWebServer(server)
+	go stopWebServer(server)
 
 	return result.token, result.err
 }
