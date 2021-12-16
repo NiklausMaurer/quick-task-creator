@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/NiklausMaurer/quick-task-creator/secretStore"
 	"github.com/NiklausMaurer/quick-task-creator/trello/authorization"
 	"github.com/NiklausMaurer/quick-task-creator/trello/client"
-	"github.com/NiklausMaurer/quick-task-creator/userTokenStore"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -30,7 +30,7 @@ func main() {
 					return err
 				}
 
-				err = userTokenStore.StoreUserToken(token)
+				err = secretStore.StoreSecret("token", token)
 				if err != nil {
 					return err
 				}
@@ -60,17 +60,17 @@ func addCardToDefaultList(taskName string) error {
 		log.Fatalf("TRELLO_API_KEY not set")
 	}
 
-	getUserTokenResult := userTokenStore.GetSecret()
-	if getUserTokenResult.Error != nil {
-		return getUserTokenResult.Error
+	getTokenResult := secretStore.GetSecret("token")
+	if getTokenResult.Error != nil {
+		return getTokenResult.Error
 	}
 
-	if !getUserTokenResult.TokenFound {
+	if !getTokenResult.SecretFound {
 		fmt.Println("quick-task-creator is not authorized yet. Try $quick-task-creator authorize to fix this.")
 		return nil
 	}
 
 	trelloListId := "5e42613e71e90d4b76228153"
 
-	return client.PostNewCard(taskName, trelloListId, trelloApiKey, getUserTokenResult.Token)
+	return client.PostNewCard(taskName, trelloListId, trelloApiKey, getTokenResult.Secret)
 }
