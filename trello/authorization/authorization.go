@@ -18,10 +18,6 @@ type authorizationResult struct {
 	err   error
 }
 
-func successfulAuthorizationResult(token string) authorizationResult {
-	return authorizationResult{token: token}
-}
-
 func PerformAuthorization() (string, error) {
 
 	listener, err := initializeNetworkListener()
@@ -105,7 +101,7 @@ func initializeWebServer(token chan authorizationResult) *http.Server {
 				return
 			}
 
-			token <- successfulAuthorizationResult(strings.TrimPrefix(tokenWithPrefix, "token="))
+			token <- authorizationResult{strings.TrimPrefix(tokenWithPrefix, "token="), nil}
 		}
 	})
 
