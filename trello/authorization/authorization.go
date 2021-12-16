@@ -34,7 +34,7 @@ func PerformAuthorization() (string, error) {
 
 	server := initializeWebServer(ch)
 
-	go startWebServer(listener, server)
+	go startWebServer(listener, server, ch)
 	go startBrowser(listener.Addr().(*net.TCPAddr).Port)
 	go sendTimeOutAfter(time.Duration(120)*time.Second, ch)
 
@@ -67,10 +67,10 @@ func initializeNetworkListener() (net.Listener, error) {
 	return listener, nil
 }
 
-func startWebServer(listener net.Listener, server *http.Server) {
+func startWebServer(listener net.Listener, server *http.Server, ch chan<- authorizationResult) {
 	err := server.Serve(listener)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal("Web server crashed: ", err)
+		ch <- authorizationResult{"", err}
 	}
 }
 
