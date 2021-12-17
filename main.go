@@ -74,9 +74,7 @@ func executeAddCommand(c *cli.Context) error {
 		return nil
 	}
 
-	homeDirPath := os.Getenv("HOME")
-	configFilePath := fmt.Sprintf("%s/.quick-task-creator/%s", homeDirPath, "config.json")
-	config, err := GetConfig(configFilePath)
+	config, err := GetConfig()
 	if err != nil {
 		return err
 	}
@@ -95,9 +93,7 @@ func executeConfigureCommand(*cli.Context) error {
 		DefaultListId: trelloListId,
 	}
 
-	homeDirPath := os.Getenv("HOME")
-	configFilePath := fmt.Sprintf("%s/.quick-task-creator/%s", homeDirPath, "config.json")
-	err = SetConfig(config, configFilePath)
+	err = SetConfig(config)
 	if err != nil {
 		return err
 	}
