@@ -56,6 +56,7 @@ func main() {
 }
 
 func addCardToDefaultList(taskName string) error {
+
 	getTrelloApiKeyResult := secretStore.GetSecret("trello-api-key")
 	if getTrelloApiKeyResult.Error != nil {
 		return getTrelloApiKeyResult.Error
@@ -74,7 +75,12 @@ func addCardToDefaultList(taskName string) error {
 		return nil
 	}
 
-	trelloListId := "5e42613e71e90d4b76228153"
+	homeDirPath := os.Getenv("HOME")
+	configFilePath := fmt.Sprintf("%s/.quick-task-creator/%s", homeDirPath, "config.json")
+	config, err := GetConfig(configFilePath)
+	if err != nil {
+		return err
+	}
 
-	return client.PostNewCard(taskName, trelloListId, getTrelloApiKeyResult.Secret, getTokenResult.Secret)
+	return client.PostNewCard(taskName, config.DefaultListId, getTrelloApiKeyResult.Secret, getTokenResult.Secret)
 }
