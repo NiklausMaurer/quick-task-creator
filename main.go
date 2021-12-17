@@ -13,37 +13,18 @@ import (
 func main() {
 
 	app := &cli.App{
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Required: true,
-				Name:     "t",
-				Value:    "",
-				Usage:    "Trello task name",
+		Commands: []*cli.Command{
+			{
+				Name:    "add",
+				Aliases: []string{"a"},
+				Usage:   "add a new card to the default list",
+				Action:  executeAddCommand,
 			},
-		},
-		Action: func(c *cli.Context) error {
-
-			command := c.Args().First()
-			if command == "authorize" {
-				token, err := authorization.PerformAuthorization()
-				if err != nil {
-					return err
-				}
-
-				err = secretStore.StoreSecret("token", token)
-				if err != nil {
-					return err
-				}
-
-				return nil
-			}
-
-			taskName := c.String("t")
-			if len(taskName) > 0 {
-				return addCardToDefaultList(taskName)
-			}
-
-			return nil
+			{
+				Name:   "authorize",
+				Usage:  "authorize this installation with trello",
+				Action: executeAuthorizeCommand,
+			},
 		},
 	}
 
@@ -54,7 +35,27 @@ func main() {
 
 }
 
-func addCardToDefaultList(taskName string) error {
+func executeAuthorizeCommand(*cli.Context) error {
+	token, err := authorization.PerformAuthorization()
+	if err != nil {
+		return err
+	}
+
+	err = secretStore.StoreSecret("token", token)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func executeAddCommand(c *cli.Context) error {
+
+	taskName := c.Args().First()
+
+	if len(taskName) == 0 {
+		return nil
+	}
 
 	getTokenResult := secretStore.GetSecret("token")
 	if getTokenResult.Error != nil {
