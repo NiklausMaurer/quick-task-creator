@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/NiklausMaurer/quick-task-creator/secretStore"
 	"github.com/NiklausMaurer/quick-task-creator/trello/authorization"
@@ -57,14 +56,6 @@ func main() {
 
 func addCardToDefaultList(taskName string) error {
 
-	getTrelloApiKeyResult := secretStore.GetSecret("trello-api-key")
-	if getTrelloApiKeyResult.Error != nil {
-		return getTrelloApiKeyResult.Error
-	}
-	if !getTrelloApiKeyResult.SecretFound {
-		return errors.New("trello api key not set")
-	}
-
 	getTokenResult := secretStore.GetSecret("token")
 	if getTokenResult.Error != nil {
 		return getTokenResult.Error
@@ -82,5 +73,5 @@ func addCardToDefaultList(taskName string) error {
 		return err
 	}
 
-	return client.PostNewCard(taskName, config.DefaultListId, getTrelloApiKeyResult.Secret, getTokenResult.Secret)
+	return client.PostNewCard(taskName, config.DefaultListId, getTokenResult.Secret)
 }
