@@ -23,3 +23,18 @@ func GetConfig(configFilePath string) (Config, error) {
 
 	return conf, nil
 }
+
+func SetConfig(config Config, configFilePath string) error {
+
+	data, err := json.MarshalIndent(config, "", " ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(configFilePath, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/NiklausMaurer/quick-task-creator/secretStore"
 	"github.com/NiklausMaurer/quick-task-creator/trello/authorization"
@@ -8,6 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -24,6 +26,11 @@ func main() {
 				Name:   "authorize",
 				Usage:  "authorize this installation with trello",
 				Action: executeAuthorizeCommand,
+			},
+			{
+				Name:   "configure",
+				Usage:  "configure this installation",
+				Action: executeConfigureCommand,
 			},
 		},
 	}
@@ -75,4 +82,41 @@ func executeAddCommand(c *cli.Context) error {
 	}
 
 	return client.PostNewCard(taskName, config.DefaultListId, getTokenResult.Secret)
+}
+
+func executeConfigureCommand(*cli.Context) error {
+
+	trelloListId, err := requestInput("What's the list id of the trello list you'd like to add tasks to?")
+	if err != nil {
+		return err
+	}
+
+	config := Config{
+		DefaultListId: trelloListId,
+	}
+
+	homeDirPath := os.Getenv("HOME")
+	configFilePath := fmt.Sprintf("%s/.quick-task-creator/%s", homeDirPath, "config.json")
+	err = SetConfig(config, configFilePath)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func requestInput(caption string) (string, error) {
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println(caption)
+
+	for {
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			return "", err
+		}
+		if len(input) > 0 {
+			return strings.TrimSuffix(input, "\n"), nil
+		}
+	}
 }
