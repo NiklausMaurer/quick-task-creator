@@ -13,6 +13,30 @@ import (
 	"time"
 )
 
+const authorizeHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Authorize Quick-Task-Creator</title></head>
+	<body>
+		<script type="text/javascript">
+			const hash = window.top.location.hash.substr(1);
+			const xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function() {
+				if (this.readyState === 4) {
+					if(this.status === 200) {
+						document.body.innerHTML = "<h1>Authorization successful</h1><p>Have fun using Quick-Task-Creator</p>";
+					}
+					else {
+						document.body.innerHTML = "<h1>Whoops, something went wrong</h1>".concat("<p>", this.response, "</p>");
+					}
+				}
+			}
+			xhr.open("POST", "/authorize", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(hash);
+		</script>
+	</body>
+</html>`
+
 type authorizationResult struct {
 	token string
 	err   error
@@ -84,29 +108,7 @@ func initializeWebServer(token chan authorizationResult) *http.Server {
 
 	serverMux.HandleFunc("/static/authorize.html", func(w http.ResponseWriter, req *http.Request) {
 
-		_, err := w.Write([]byte(`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Authorize Quick-Task-Creator</title></head>
-	<body>
-		<script type="text/javascript">
-			const hash = window.top.location.hash.substr(1);
-			const xhr = new XMLHttpRequest();
-			xhr.onreadystatechange = function() {
-				if (this.readyState === 4) {
-					if(this.status === 200) {
-						document.body.innerHTML = "<h1>Authorization successful</h1><p>Have fun using Quick-Task-Creator</p>";
-					}
-					else {
-						document.body.innerHTML = "<h1>Whoops, something went wrong</h1>".concat("<p>", this.response, "</p>");
-					}
-				}
-			}
-			xhr.open("POST", "/authorize", true);
-			xhr.setRequestHeader('Content-Type', 'application/json');
-			xhr.send(hash);
-		</script>
-	</body>
-</html>`))
+		_, err := w.Write([]byte(authorizeHtml))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
