@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 const apiKey = "e6b342d7e5d3c98eb4cd2b14c6d7f599"
@@ -20,8 +21,10 @@ func PostNewCard(taskName string, trelloListId string, trelloUserToken string, t
 
 	url := fmt.Sprintf("%s/1/cards?idList=%s&key=%s&token=%s", trelloApiUrl, trelloListId, apiKey, trelloUserToken)
 
+	client := http.Client{Timeout: 2 * time.Second}
+
 	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"","pos":"top"}`, taskName))
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonStr))
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return err
 	}
