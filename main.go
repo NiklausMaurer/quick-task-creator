@@ -79,7 +79,7 @@ func executeAddCommand(c *cli.Context) error {
 		return err
 	}
 
-	return client.PostNewCard(taskName, config.DefaultListId, getTokenResult.Secret)
+	return client.PostNewCard(taskName, config.DefaultListId, getTokenResult.Secret, config.TrelloApiUrl)
 }
 
 func executeConfigureCommand(*cli.Context) error {

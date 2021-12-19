@@ -16,8 +16,9 @@ func (e *RequestError) Error() string {
 	return fmt.Sprintf("Request failed with status %d", e.StatusCode)
 }
 
-func PostNewCard(taskName string, trelloListId string, trelloUserToken string) error {
-	url := fmt.Sprintf("https://api.trello.com/1/cards?idList=%s&key=%s&token=%s", trelloListId, apiKey, trelloUserToken)
+func PostNewCard(taskName string, trelloListId string, trelloUserToken string, trelloApiUrl string) error {
+
+	url := fmt.Sprintf("%s/1/cards?idList=%s&key=%s&token=%s", trelloApiUrl, trelloListId, apiKey, trelloUserToken)
 
 	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"","pos":"top"}`, taskName))
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonStr))

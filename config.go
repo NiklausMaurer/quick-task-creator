@@ -9,11 +9,14 @@ import (
 
 type Config struct {
 	DefaultListId string
+	TrelloApiUrl  string
 }
 
 func GetConfig() (Config, error) {
 
-	conf := Config{}
+	conf := Config{
+		TrelloApiUrl: "https://api.trello.com",
+	}
 
 	b, err := ioutil.ReadFile(getDefaultConfigFilePath())
 	if err != nil {
