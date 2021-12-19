@@ -3,7 +3,6 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -21,24 +20,12 @@ func PostNewCard(taskName string, trelloListId string, trelloUserToken string) e
 	url := fmt.Sprintf("https://api.trello.com/1/cards?idList=%s&key=%s&token=%s", trelloListId, apiKey, trelloUserToken)
 
 	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"","pos":"top"}`, taskName))
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonStr))
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return err
 	}
 
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-
-	if err != nil {
-		return err
-	}
-
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		return &RequestError{StatusCode: resp.StatusCode}
