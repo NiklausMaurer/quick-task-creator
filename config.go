@@ -12,13 +12,17 @@ type Config struct {
 	TrelloApiUrl  string
 }
 
-func GetConfig() (Config, error) {
+func GetConfig(configFilePath string) (Config, error) {
 
 	conf := Config{
 		TrelloApiUrl: "https://api.trello.com",
 	}
 
-	b, err := ioutil.ReadFile(getDefaultConfigFilePath())
+	if configFilePath == "" {
+		configFilePath = getDefaultConfigFilePath()
+	}
+
+	b, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
 		return conf, err
 	}

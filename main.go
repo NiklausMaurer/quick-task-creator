@@ -15,12 +15,17 @@ import (
 func main() {
 
 	app := &cli.App{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "config",
+				Usage: "Use this to override the default config file path",
+			},
+		},
 		Commands: []*cli.Command{
 			{
-				Name:    "add",
-				Aliases: []string{"a"},
-				Usage:   "add a new card to the default list",
-				Action:  executeAddCommand,
+				Name:   "add",
+				Usage:  "add a new card to the default list",
+				Action: executeAddCommand,
 			},
 			{
 				Name:   "authorize",
@@ -74,7 +79,7 @@ func executeAddCommand(c *cli.Context) error {
 		return nil
 	}
 
-	config, err := GetConfig()
+	config, err := GetConfig(c.String("config"))
 	if err != nil {
 		return err
 	}
