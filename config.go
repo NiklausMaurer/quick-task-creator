@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	DefaultListId string
-	TrelloApiUrl  string
+	DefaultListId string `json:"defaultListId"`
+	TrelloApiUrl  string `json:"trelloApiUrl,omitempty"`
 }
 
 func GetConfig(configFilePath string) (Config, error) {
