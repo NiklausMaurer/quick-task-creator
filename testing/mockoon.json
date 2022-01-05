@@ -1,0 +1,67 @@
+{
+  "uuid": "4af54a88-5414-40f0-9d47-457742f44a09",
+  "lastMigration": 19,
+  "name": "quick-task-creator",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 1234,
+  "hostname": "0.0.0.0",
+  "routes": [
+    {
+      "uuid": "4930abf1-aae5-4b1d-9b63-beef4d647ac0",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "1/cards",
+      "responses": [
+        {
+          "uuid": "cafa366c-0cc0-485b-bc9c-12432f7cf427",
+          "body": "{}",
+          "latency": 5,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "filePath": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false
+        }
+      ],
+      "enabled": true,
+      "randomResponse": false,
+      "sequentialResponse": false
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ]
+}
