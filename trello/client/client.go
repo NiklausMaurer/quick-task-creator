@@ -17,13 +17,13 @@ func (e *RequestError) Error() string {
 	return fmt.Sprintf("Request failed with status %d", e.StatusCode)
 }
 
-func PostNewCard(taskName string, trelloListId string, trelloUserToken string, trelloApiUrl string) error {
+func PostNewCard(taskName string, taskDescription string, trelloListId string, trelloUserToken string, trelloApiUrl string) error {
 
 	url := fmt.Sprintf("%s/1/cards?idList=%s&key=%s&token=%s", trelloApiUrl, trelloListId, apiKey, trelloUserToken)
 
 	client := http.Client{Timeout: 2 * time.Second}
 
-	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"","pos":"top"}`, taskName))
+	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"%s","pos":"top"}`, taskName, taskDescription))
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return err

@@ -64,6 +64,11 @@ func executeAuthorizeCommand(*cli.Context) error {
 func executeAddCommand(c *cli.Context) error {
 
 	taskName := c.Args().First()
+	taskDescription := ""
+
+	if c.Args().Len() > 1 {
+		taskDescription = c.Args().Get(1)
+	}
 
 	if len(taskName) == 0 {
 		return nil
@@ -84,7 +89,7 @@ func executeAddCommand(c *cli.Context) error {
 		return err
 	}
 
-	return client.PostNewCard(taskName, config.DefaultListId, getTokenResult.Secret, config.TrelloApiUrl)
+	return client.PostNewCard(taskName, taskDescription, config.DefaultListId, getTokenResult.Secret, config.TrelloApiUrl)
 }
 
 func executeConfigureCommand(*cli.Context) error {
