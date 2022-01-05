@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,12 @@ const apiKey = "e6b342d7e5d3c98eb4cd2b14c6d7f599"
 
 type RequestError struct {
 	StatusCode int
+}
+
+type trelloCard struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"desc,omitempty"`
+	Position    string `json:"pos,omitempty"`
 }
 
 func (e *RequestError) Error() string {
@@ -23,7 +30,17 @@ func PostNewCard(taskName string, taskDescription string, trelloListId string, t
 
 	client := http.Client{Timeout: 2 * time.Second}
 
-	var jsonStr = []byte(fmt.Sprintf(`{"name":"%s","desc":"%s","pos":"top"}`, taskName, taskDescription))
+	var card = trelloCard{
+		Name:        taskName,
+		Description: taskDescription,
+		Position:    "top",
+	}
+
+	var jsonStr, err = json.Marshal(card)
+	if err != nil {
+		return err
+	}
+
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return err
