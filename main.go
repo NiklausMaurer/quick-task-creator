@@ -23,9 +23,10 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name:   "add",
-				Usage:  "add a new card to the default list",
-				Action: executeAddCommand,
+				Name:      "add",
+				Usage:     "add a new card to the default list",
+				ArgsUsage: "task_name [task_description]",
+				Action:    executeAddCommand,
 			},
 			{
 				Name:   "authorize",
