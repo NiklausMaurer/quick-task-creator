@@ -48,8 +48,14 @@ func main() {
 
 }
 
-func executeAuthorizeCommand(*cli.Context) error {
-	token, err := authorization.PerformAuthorization()
+func executeAuthorizeCommand(c *cli.Context) error {
+
+	config, err := GetConfig(c.String("config"))
+	if err != nil {
+		return err
+	}
+
+	token, err := authorization.PerformAuthorization(config.TrelloApiKey)
 	if err != nil {
 		return err
 	}
@@ -102,6 +108,7 @@ func executeConfigureCommand(*cli.Context) error {
 
 	config := Config{
 		DefaultListId: trelloListId,
+		TrelloApiKey:  "e6b342d7e5d3c98eb4cd2b14c6d7f599",
 	}
 
 	err = SetConfig(config)

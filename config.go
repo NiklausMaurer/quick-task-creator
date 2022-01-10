@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	DefaultListId string `json:"defaultListId"`
+	TrelloApiKey  string `json:"trelloApiKey"`
 	TrelloApiUrl  string `json:"trelloApiUrl,omitempty"`
 }
 

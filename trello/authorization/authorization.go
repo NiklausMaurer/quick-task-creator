@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"os"
 	"os/exec"
 	"runtime"
 	"time"
@@ -15,7 +14,7 @@ type authorizationResult struct {
 	err   error
 }
 
-func PerformAuthorization() (string, error) {
+func PerformAuthorization(apiKey string) (string, error) {
 
 	listener, err := initializeNetworkListener()
 	if err != nil {
@@ -27,7 +26,7 @@ func PerformAuthorization() (string, error) {
 	server := initializeWebServer(ch)
 
 	go startWebServer(listener, server, ch)
-	go startBrowser(listener.Addr().(*net.TCPAddr).Port, ch)
+	go startBrowser(apiKey, listener.Addr().(*net.TCPAddr).Port, ch)
 	go sendTimeOutAfter(time.Duration(120)*time.Second, ch)
 
 	result := <-ch
@@ -41,13 +40,8 @@ func sendTimeOutAfter(d time.Duration, resultChannel chan authorizationResult) {
 	resultChannel <- authorizationResult{err: errors.New("timeout expired")}
 }
 
-func startBrowser(port int, ch chan<- authorizationResult) {
-	trelloApiKey, present := os.LookupEnv("TRELLO_API_KEY")
-	if !present {
-		ch <- authorizationResult{"", errors.New("the environment variable TRELLO_API_KEY is not set")}
-	}
-
-	err := openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:%d/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", port, trelloApiKey))
+func startBrowser(apiKey string, port int, ch chan<- authorizationResult) {
+	err := openBrowser(fmt.Sprintf("https://trello.com/1/authorize?expiration=never&callback_method=fragment&return_url=http://localhost:%d/static/authorize.html&name=quick-task-creator&scope=read,write&response_type=fragment&key=%s", port, apiKey))
 	if err != nil {
 		ch <- authorizationResult{"", err}
 	}
