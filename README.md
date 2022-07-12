@@ -27,3 +27,8 @@ list": {
 ```
 
 The tool will store its configuration and authentication token inside ```${HOME}/.quick-task-creator```
+
+## Usage
+```
+$ trello -h
+```
